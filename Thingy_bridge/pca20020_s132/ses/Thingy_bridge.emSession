@@ -23,6 +23,7 @@
  <Project>
   <ProjectSessionItem path="Thingy_bridge_s132_pca20020"/>
   <ProjectSessionItem path="Thingy_bridge_s132_pca20020;Thingy_bridge"/>
+  <ProjectSessionItem path="Thingy_bridge_s132_pca20020;Thingy_bridge;Mesh_HealthModel"/>
   <ProjectSessionItem path="Thingy_bridge_s132_pca20020;Thingy_bridge;Mesh_simple_thingy"/>
   <ProjectSessionItem path="Thingy_bridge_s132_pca20020;Thingy_bridge;Thingy"/>
  </Project>
@@ -57,13 +58,14 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="422" useTextEdit="1" useBinaryEdit="0" left="0" path="../main.c" selected="1" top="372" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="53" y="333" useTextEdit="1" useBinaryEdit="0" left="0" path="../main.c" selected="1" top="307" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/libraries/log/nrf_log.h" selected="0" top="174" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="79" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_client.h" selected="0" top="48" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="53" useTextEdit="1" useBinaryEdit="0" left="0" path="sdk_mod/m_nus.h" selected="0" top="37" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="87" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/src/simple_thingy_client.c" selected="0" top="54" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="36" y="113" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_common.h" selected="0" top="71" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="66" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/softdevice/s132/headers/nrf_error.h" selected="0" top="43" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="90" y="70" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_client.h" selected="0" top="57" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="35" y="57" useTextEdit="1" useBinaryEdit="0" left="0" path="sdk_mod/m_nus.h" selected="0" top="37" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="20" y="242" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/src/simple_thingy_client.c" selected="0" top="213" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="140" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_common.h" selected="0" top="112" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="66" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/softdevice/s132/headers/nrf_error.h" selected="0" top="46" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="294" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/health/src/health_client.c" selected="0" top="272" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="Thingy_bridge" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="debug_v1_0_0" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>

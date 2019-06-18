@@ -942,7 +942,6 @@ ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
                             nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
                             uint32_t                        flags)
 {
-
     ret_code_t err_code = NRF_SUCCESS;
     twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
 
@@ -990,7 +989,6 @@ ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
                           bool                  no_stop)
 {
     nrf_drv_twi_xfer_desc_t xfer = NRF_DRV_TWI_XFER_DESC_TX(address, (uint8_t*)p_data, length);
-
     return nrf_drv_twi_xfer(p_instance, &xfer, no_stop ? NRF_DRV_TWI_FLAG_TX_NO_STOP : 0);
 }
 

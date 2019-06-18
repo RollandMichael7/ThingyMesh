@@ -78,6 +78,11 @@ typedef PACKED( struct
     float accelerationZ;
 }) motion_reading_t;
 
+typedef PACKED ( struct
+{
+  uint8_t type;
+  uint8_t data;
+}) batt_reading_t;
 
 typedef PACKED( struct
 {
@@ -94,8 +99,9 @@ typedef enum
     SIMPLE_THINGY_OPCODE_LED_STATUS = 0xC4,         /**< Simple Thingy LED Status. */
     SIMPLE_THINGY_OPCODE_SENSOR_CONFIG_SET = 0xC5,  /**< Simple Thingy Sensor Config Set. */
     SIMPLE_THINGY_OPCODE_SENSOR_STATUS = 0xC6,      /**< Simple THingy Sensor Status. */
-    SIMPLE_THINGY_OPCODE_MOTION_STATUS = 0xC7,       /**< Simple Thingy Motion Status. */
-    SIMPLE_THINGY_OPCODE_MOTION_CONFIG_SET = 0xC8    /**< Simple Thingy Motion Config Set. */
+    SIMPLE_THINGY_OPCODE_MOTION_STATUS = 0xC7,      /**< Simple Thingy Motion Status. */
+    SIMPLE_THINGY_OPCODE_MOTION_CONFIG_SET = 0xC8,  /**< Simple Thingy Motion Config Set. */
+    SIMPLE_THINGY_OPCODE_BATTERY_STATUS = 0xC9      /**< Simple Thingy Battery Status. */
 } simple_thingy_opcode_t;
 
 /** Message format for the Simple Thingy LED Set message. */
@@ -127,6 +133,12 @@ typedef struct __attribute((packed))
 {
     motion_reading_t sensor_info;
 } simple_thingy_msg_motion_reading_t;
+
+/** Message format for the Simple Thingy Battery Status mesage. */
+typedef struct __attribute((packed))
+{
+  batt_reading_t batt_info;
+} simple_thingy_msg_batt_reading_t;
 
 /** Message format for the Simple Thingy Sensor Config message. */
 typedef struct __attribute((packed))

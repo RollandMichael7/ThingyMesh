@@ -55,6 +55,7 @@ typedef enum{
     NUS_RSP_LED_STATE = 0x07,
     NUS_RSP_MOTION_SET = 0x08,
     NUS_RSP_MOTION_READING = 0x09,
+    NUS_RSP_BATTERY_READING = 0x10,
     NUS_RSP_NONE_ID = 0xffff,
 }nus_rsp_t;
 
@@ -67,7 +68,7 @@ typedef enum
     NUS_CMD_GROUP_DELETE = 0x05,
     NUS_CMD_UNPROV_SCAN = 0x06,
     NUS_CMD_PROV_DEV = 0x07,
-    NUS_CMD_MOTION_SET = 0x08,
+    NUS_CMD_MOTION_SET = 0x08
 } nus_cmd_t;
 
 uint32_t m_nus_init(m_ble_service_handle_t * p_handle, ble_nus_data_handler_t data_handler);

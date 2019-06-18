@@ -130,6 +130,7 @@ APP_TIMER_DEF(m_scan_dev_timer);
 static void client_status_cb(const simple_thingy_client_t * p_self, ble_uis_led_t led_status, uint16_t src);
 static void sensor_status_cb(const simple_thingy_client_t * p_self, sensor_reading_t sensor_status, uint16_t src);
 static void motion_status_cb(const simple_thingy_client_t * p_self, motion_reading_t motion_status, uint16_t src);
+static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t batt_status, uint16_t src);
 static void health_event_cb(const health_client_t * p_client, const health_client_evt_t * p_event);
 /*****************************************************************************
  * Static functions
@@ -185,6 +186,17 @@ static void motion_status_cb(const simple_thingy_client_t * p_self, motion_readi
   ret_packet[2] = status.accelerationZ;
 
   nus_response_send(NUS_RSP_MOTION_READING, server_index, ret_packet, sizeof(ret_packet));
+}
+
+static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t status, uint16_t src) {
+  uint8_t ret_packet[2];
+  NRF_LOG_INFO("Battery status from node address 0x%04X\r\n", src);
+  uint32_t server_index = server_index_get(p_self);
+
+  ret_packet[0] = status.type;
+  ret_packet[1] = status.data;
+
+  nus_response_send(NUS_RSP_BATTERY_READING, server_index, ret_packet, sizeof(ret_packet));
 }
 
 
@@ -318,6 +330,8 @@ static void access_setup(void)
         m_clients[i].sensor_status_cb = sensor_status_cb;
         // register motion
         m_clients[i].motion_status_cb = motion_status_cb;
+        // register battery
+        m_clients[i].batt_status_cb = batt_status_cb;
         ERROR_CHECK(simple_thingy_client_init(&m_clients[i], i));
     }
 

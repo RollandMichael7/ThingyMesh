@@ -201,3 +201,13 @@ uint32_t simple_thingy_motion_report(simple_thingy_server_t * p_server, motion_r
     msg.length = sizeof(motion_reading_t);
     return access_model_publish(p_server->model_handle, &msg);
 }
+
+uint32_t simple_thingy_batt_report(simple_thingy_server_t * p_server, batt_reading_t batt_data)
+{
+    access_message_tx_t msg;
+    msg.opcode.opcode = SIMPLE_THINGY_OPCODE_BATTERY_STATUS;
+    msg.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+    msg.p_buffer = (const uint8_t *) & batt_data;
+    msg.length = sizeof(batt_reading_t);
+    return access_model_publish(p_server->model_handle, &msg);
+}

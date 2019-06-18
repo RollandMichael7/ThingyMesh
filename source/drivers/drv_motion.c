@@ -924,16 +924,20 @@ uint32_t drv_motion_init(drv_motion_evt_handler_t evt_handler, drv_motion_twi_in
     m_motion.motion_freq_hz        = DEFAULT_MPU_HZ;
     m_motion.wake_on_motion        = 1;
 
+    //NRF_LOG_INFO("acc init\r\n");
     err_code = drv_acc_init(&lis_init_params);
     RETURN_IF_ERROR(err_code);
 
+    //NRF_LOG_INFO("mpu9250 init\r\n");
     err_code = drv_mpu9250_init(&mpu_init_params);
     RETURN_IF_ERROR(err_code);
 
+    //NRF_LOG_INFO("gpio stuff\r\n");
     /* Init power pin and power off the mpu9250 chip */
     err_code = drv_ext_gpio_cfg_output(SX_MPU_PWR_CTRL);
     RETURN_IF_ERROR(err_code);
 
+    //NRF_LOG_INFO("mpu9250 power\r\n");
     err_code = mpu9250_power(false);
     RETURN_IF_ERROR(err_code);
 

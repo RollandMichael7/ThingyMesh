@@ -81,6 +81,7 @@
       <file file_name="../../../sdk_components/ble/common/ble_conn_state.c" />
       <file file_name="../../../sdk_components/ble/common/ble_srv_common.c" />
       <file file_name="../../../source/ble_services/ble_uis.c" />
+      <file file_name="../../../external/sdk13/components/ble/ble_services/ble_bas/ble_bas.c" />
     </folder>
     <folder Name="nRF_Drivers">
       <file file_name="../../../sdk_components/drivers_nrf/common/nrf_drv_common.c" />

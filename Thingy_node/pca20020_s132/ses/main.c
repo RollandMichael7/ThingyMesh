@@ -99,6 +99,7 @@ simple_thingy_server_t m_server;
 #define SCHED_MAX_EVENT_DATA_SIZE   MAX(APP_TIMER_SCHED_EVENT_DATA_SIZE, BLE_STACK_HANDLER_SCHED_EVT_SIZE) /**< Maximum size of scheduler events. */
 #define SCHED_QUEUE_SIZE            60  /**< Maximum number of events in the scheduler queue. */
 
+m_ble_service_handle_t m_batt_handle; // Service handle for battery
 static const nrf_drv_twi_t     m_twi_sensors = NRF_DRV_TWI_INSTANCE(TWI_SENSOR_INSTANCE);
 APP_TIMER_DEF(m_sensor_timer_id);       // Sensor feedback timer
 APP_TIMER_DEF(m_motion_timer_id);       // Motion feedback timer
@@ -146,6 +147,20 @@ static void sensor_timer_handler()
       .pressure = pressure
     };
     simple_thingy_sensor_report(&m_server, sensor_data);
+}
+
+static void batt_meas_handler(m_batt_meas_event_t *evt) {
+  batt_reading_t reading;
+  reading.type = evt->type;
+  if (evt->type == M_BATT_MEAS_EVENT_DATA) {
+    NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
+    reading.data = evt->level_percent;
+  }
+  else if (evt->type == M_BATT_MEAS_EVENT_LOW) {
+    NRF_LOG_INFO("Warning: Battery level low!\r\n");
+    reading.data = 0;
+  }
+  simple_thingy_batt_report(&m_server, reading);
 }
 
 void thingy_led_set(simple_thingy_server_t * server, ble_uis_led_t led_config)
@@ -408,7 +423,9 @@ void sensor_init()
         .scl = TWI_SCL,
         .sda = TWI_SDA,
         .frequency = NRF_TWI_FREQ_400K,
-        .interrupt_priority = APP_IRQ_PRIORITY_LOW
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
+        .clear_bus_init = 0,
+        .hold_bus_uninit = 0
     };
 
     drv_humidity_init_t init_params = 
@@ -433,27 +450,29 @@ void sensor_init()
     ERROR_CHECK(drv_pressure_init(&pressure_params));
     ERROR_CHECK(drv_pressure_enable());
 
-    nrf_drv_twi_t motion_driver = NRF_DRV_TWI_INSTANCE(0);
-    nrf_drv_twi_config_t motion_config = NRF_DRV_TWI_DEFAULT_CONFIG;
-    drv_motion_twi_init_t motion_params = {
-        .p_twi_instance = &motion_driver,
-        .p_twi_cfg = &motion_params
-    };
-    //ERROR_CHECK(drv_motion_init(drv_motion_evt_handler, &motion_params, &motion_params));
-    //ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_RAW_ACCEL));
-    
+
     /*
-    batt_meas_init_t bconfig = BATT_MEAS_PARAM_CFG;
+    drv_motion_twi_init_t motion_params = {
+        .p_twi_instance = &m_twi_sensors,
+        .p_twi_cfg = &twi_config
+    };
+
+
+    NRF_LOG_INFO("Starting motion sensor...\r\n");
+    ERROR_CHECK(drv_motion_init(drv_motion_evt_handler, &motion_params, &motion_params));
+    ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_RAW_ACCEL));
+    */
+    
+    batt_meas_param_t bconfig = BATT_MEAS_PARAM;
     batt_meas_init_t binit = {
           .evt_handler = batt_meas_handler,
           .batt_meas_param = bconfig
     };
-    ERROR_CHECK(m_batt_meas_init(???, &binit);
-    ERROR_CHECK(m_batt_meas_enable(10000));
-    */
-    
-    app_timer_create(&m_sensor_timer_id, APP_TIMER_MODE_REPEATED, sensor_timer_handler);
+    ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+    ERROR_CHECK(m_batt_meas_enable(60000));
 
+    // register sensors
+    app_timer_create(&m_sensor_timer_id, APP_TIMER_MODE_REPEATED, sensor_timer_handler);
     // register motion 
     app_timer_create(&m_motion_timer_id, APP_TIMER_MODE_REPEATED, motion_timer_handler);
 
