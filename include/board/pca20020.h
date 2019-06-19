@@ -572,6 +572,31 @@ static const uint8_t BATT_MEAS_VOLTAGE_TO_SOC[] = {
      },                                                                 \
 };
 
+#define BATT_MEAS_PARAM                                                 \
+{                                                                       \
+    .app_timer_prescaler        = APP_TIMER_PRESCALER,              \
+    .adc_pin_no                 = BATTERY,                          \
+    .adc_pin_no_ain             = BATTERY_AIN,                      \
+    .usb_detect_pin_no          = USB_DETECT,                       \
+    .batt_chg_stat_pin_no       = BAT_CHG_STAT,                     \
+    .batt_mon_en_pin_used       = BAT_MON_EN_PIN_USED,              \
+    .batt_mon_en_pin_no         = BAT_MON_EN_PIN_NO,                \
+    .batt_voltage_limit_low     = BATT_MEAS_LOW_BATT_LIMIT_MV,      \
+    .batt_voltage_limit_full    = BATT_MEAS_FULL_BATT_LIMIT_MV,     \
+    .state_of_charge =                                              \
+    {                                                               \
+        .num_elements           = BATT_MEAS_VOLTAGE_TO_SOC_ELEMENTS,\
+        .first_element_mv       = BATT_MEAS_LOW_BATT_LIMIT_MV,      \
+        .delta_mv               = BATT_MEAS_VOLTAGE_TO_SOC_DELTA_MV,\
+        .voltage_to_soc         = BATT_MEAS_VOLTAGE_TO_SOC,         \
+    },                                                              \
+    .voltage_divider =                                              \
+    {                                                               \
+        .r_1_ohm                = BATT_VOLTAGE_DIVIDER_R1,          \
+        .r_2_ohm                = BATT_VOLTAGE_DIVIDER_R2,          \
+    },                                                              \
+};
+
 // Low frequency clock source to be used by the SoftDevice
 #define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
                                  .rc_ctiv       = 0,                                \

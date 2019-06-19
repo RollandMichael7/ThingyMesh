@@ -103,6 +103,8 @@
 #define GROUP_CLIENT_INDEX  (SERVER_COUNT)
 #define CUSTOM_GROUP_CLIENT_INDEX  (SERVER_COUNT + 1)
 
+static m_ble_service_handle_t m_batt_handle;
+
 static const nrf_drv_twi_t     m_twi_sensors = NRF_DRV_TWI_INSTANCE(TWI_SENSOR_INSTANCE);
 static m_ble_service_handle_t  m_ble_service_handles[THINGY_SERVICES_MAX];
 
@@ -155,10 +157,12 @@ static uint32_t server_index_get(const simple_thingy_client_t * p_client)
 static void sensor_status_cb(const simple_thingy_client_t * p_self, sensor_reading_t status, uint16_t src)
 {
     uint8_t ret_packet[7];
+    /*
     NRF_LOG_INFO("Sensor information from node address 0x%04X\r\n", src);
     NRF_LOG_INFO("Humidity: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.humidity));
     NRF_LOG_INFO("Temperature: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.temperature));
     NRF_LOG_INFO("Pressure: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.pressure));
+    */
     uint32_t server_index = server_index_get(p_self);
 
     ret_packet[0] = (int8_t)status.temperature;
@@ -188,15 +192,35 @@ static void motion_status_cb(const simple_thingy_client_t * p_self, motion_readi
   nus_response_send(NUS_RSP_MOTION_READING, server_index, ret_packet, sizeof(ret_packet));
 }
 
+// callback function for battery reading from remote node
 static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t status, uint16_t src) {
   uint8_t ret_packet[2];
-  NRF_LOG_INFO("Battery status from node address 0x%04X\r\n", src);
+  //NRF_LOG_INFO("Battery status from node address 0x%04X\r\n", src);
   uint32_t server_index = server_index_get(p_self);
 
   ret_packet[0] = status.type;
   ret_packet[1] = status.data;
 
   nus_response_send(NUS_RSP_BATTERY_READING, server_index, ret_packet, sizeof(ret_packet));
+}
+
+// callback function for local battery reading
+static void batt_meas_handler(m_batt_meas_event_t *evt) {
+  batt_reading_t reading;
+  reading.type = evt->type;
+  if (evt->type == M_BATT_MEAS_EVENT_DATA) {
+    NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
+    reading.data = evt->level_percent;
+  }
+  else if (evt->type == M_BATT_MEAS_EVENT_LOW) {
+    NRF_LOG_INFO("Warning: Battery level low!\r\n");
+    reading.data = 0;
+  }
+  
+  uint8_t ret_packet[2];
+  ret_packet[0] = reading.type;
+  ret_packet[1] = reading.data;
+  nus_response_send(NUS_RSP_BATTERY_READING, BRIDGE_INDEX, ret_packet, sizeof(ret_packet));
 }
 
 
@@ -737,6 +761,17 @@ static ret_code_t button_init(void)
     return app_button_enable();
 }
 
+static void battery_init(void) 
+{
+    batt_meas_param_t bconfig = BATT_MEAS_PARAM;
+    batt_meas_init_t binit = {
+          .evt_handler = batt_meas_handler,
+          .batt_meas_param = bconfig
+    };
+    ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+    ERROR_CHECK(m_batt_meas_enable(60000));    
+}
+
 
 static void board_init(void)
 {
@@ -810,6 +845,7 @@ int main(void)
     board_init();
     thingy_init();
     button_init();
+    battery_init();
     mesh_core_setup();
     access_setup();
 
