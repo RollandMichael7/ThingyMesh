@@ -69,6 +69,7 @@ typedef void (*simple_thingy_led_status_cb_t)(const simple_thingy_client_t * p_s
 typedef void (*simple_thingy_sensor_status_cb_t)(const simple_thingy_client_t * p_self, sensor_reading_t sensor_info, uint16_t src);
 typedef void (*simple_thingy_motion_status_cb_t)(const simple_thingy_client_t * p_self, motion_reading_t motion_info, uint16_t src);
 typedef void (*simple_thingy_batt_status_cb_t)(const simple_thingy_client_t * p_self, batt_reading_t motion_info, uint16_t src);
+typedef void (*simple_thingy_button_status_cb_t)(const simple_thingy_client_t * p_self, button_reading_t button_info, uint16_t src);
 
 /** Simple OnOff Client state structure. */
 struct __simple_thingy_client
@@ -80,6 +81,7 @@ struct __simple_thingy_client
     simple_thingy_sensor_status_cb_t sensor_status_cb;
     simple_thingy_motion_status_cb_t motion_status_cb;
     simple_thingy_batt_status_cb_t batt_status_cb;
+    simple_thingy_button_status_cb_t button_status_cb;
     /** Internal client state. */
     struct
     {

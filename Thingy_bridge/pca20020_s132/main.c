@@ -133,6 +133,7 @@ static void client_status_cb(const simple_thingy_client_t * p_self, ble_uis_led_
 static void sensor_status_cb(const simple_thingy_client_t * p_self, sensor_reading_t sensor_status, uint16_t src);
 static void motion_status_cb(const simple_thingy_client_t * p_self, motion_reading_t motion_status, uint16_t src);
 static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t batt_status, uint16_t src);
+static void button_status_cb(const simple_thingy_client_t * p_self, button_reading_t button_status, uint16_t src);
 static void health_event_cb(const health_client_t * p_client, const health_client_evt_t * p_event);
 /*****************************************************************************
  * Static functions
@@ -157,8 +158,9 @@ static uint32_t server_index_get(const simple_thingy_client_t * p_client)
 static void sensor_status_cb(const simple_thingy_client_t * p_self, sensor_reading_t status, uint16_t src)
 {
     uint8_t ret_packet[7];
+
+    //NRF_LOG_INFO("Sensor information from node address 0x%04X\r\n", src);
     /*
-    NRF_LOG_INFO("Sensor information from node address 0x%04X\r\n", src);
     NRF_LOG_INFO("Humidity: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.humidity));
     NRF_LOG_INFO("Temperature: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.temperature));
     NRF_LOG_INFO("Pressure: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(status.pressure));
@@ -192,6 +194,16 @@ static void motion_status_cb(const simple_thingy_client_t * p_self, motion_readi
   nus_response_send(NUS_RSP_MOTION_READING, server_index, ret_packet, sizeof(ret_packet));
 }
 
+// callback function for button event on remote node
+static void button_status_cb(const simple_thingy_client_t * p_self, button_reading_t status, uint16_t src) {
+  uint8_t ret_packet[1];
+  //NRF_LOG_INFO("Button information from node address 0x%04X\r\n", src);
+  uint32_t server_index = server_index_get(p_self);
+
+  ret_packet[0] = status.status;
+  nus_response_send(NUS_RSP_BUTTON_READING, server_index, ret_packet, sizeof(ret_packet));
+}
+
 // callback function for battery reading from remote node
 static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t status, uint16_t src) {
   uint8_t ret_packet[2];
@@ -209,7 +221,7 @@ static void batt_meas_handler(m_batt_meas_event_t *evt) {
   batt_reading_t reading;
   reading.type = evt->type;
   if (evt->type == M_BATT_MEAS_EVENT_DATA) {
-    NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
+    //NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
     reading.data = evt->level_percent;
   }
   else if (evt->type == M_BATT_MEAS_EVENT_LOW) {
@@ -356,6 +368,8 @@ static void access_setup(void)
         m_clients[i].motion_status_cb = motion_status_cb;
         // register battery
         m_clients[i].batt_status_cb = batt_status_cb;
+        // register button
+        m_clients[i].button_status_cb = button_status_cb;
         ERROR_CHECK(simple_thingy_client_init(&m_clients[i], i));
     }
 
@@ -708,6 +722,7 @@ static void thingy_init(void)
 
 }
 
+// Handle local button press event
 static void button_evt_handler(uint8_t pin_no, uint8_t button_action)
 {
     uint32_t err_code;

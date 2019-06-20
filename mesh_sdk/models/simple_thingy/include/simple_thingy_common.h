@@ -66,6 +66,11 @@ typedef enum
 
 typedef PACKED( struct
 {
+    uint8_t report_timer;
+}) sensor_config_t;
+
+typedef PACKED( struct
+{
     float humidity;
     float temperature;
     float pressure;
@@ -84,11 +89,10 @@ typedef PACKED ( struct
   uint8_t data;
 }) batt_reading_t;
 
-typedef PACKED( struct
+typedef PACKED ( struct
 {
-    uint8_t report_timer;
-}) sensor_config_t;
-
+  uint8_t status;
+}) button_reading_t;
 
 /** Simple Thingy opcodes. */
 typedef enum
@@ -101,7 +105,8 @@ typedef enum
     SIMPLE_THINGY_OPCODE_SENSOR_STATUS = 0xC6,      /**< Simple THingy Sensor Status. */
     SIMPLE_THINGY_OPCODE_MOTION_STATUS = 0xC7,      /**< Simple Thingy Motion Status. */
     SIMPLE_THINGY_OPCODE_MOTION_CONFIG_SET = 0xC8,  /**< Simple Thingy Motion Config Set. */
-    SIMPLE_THINGY_OPCODE_BATTERY_STATUS = 0xC9      /**< Simple Thingy Battery Status. */
+    SIMPLE_THINGY_OPCODE_BATTERY_STATUS = 0xC9,     /**< Simple Thingy Battery Status. */
+    SIMPLE_THINGY_OPCODE_BUTTON_STATUS = 0xCA       /**< Simple Thingy Button Status. */
 } simple_thingy_opcode_t;
 
 /** Message format for the Simple Thingy LED Set message. */
@@ -139,6 +144,12 @@ typedef struct __attribute((packed))
 {
   batt_reading_t batt_info;
 } simple_thingy_msg_batt_reading_t;
+
+/** Message format for the Simple Thingy Button Status message. */
+typedef struct __attribute((packed))
+{
+  button_reading_t button_info;
+} simple_thingy_msg_button_reading_t;
 
 /** Message format for the Simple Thingy Sensor Config message. */
 typedef struct __attribute((packed))

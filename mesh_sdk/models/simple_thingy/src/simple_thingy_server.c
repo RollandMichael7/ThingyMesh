@@ -211,3 +211,13 @@ uint32_t simple_thingy_batt_report(simple_thingy_server_t * p_server, batt_readi
     msg.length = sizeof(batt_reading_t);
     return access_model_publish(p_server->model_handle, &msg);
 }
+
+uint32_t simple_thingy_button_report(simple_thingy_server_t * p_server, button_reading_t button_data)
+{
+  access_message_tx_t msg;
+  msg.opcode.opcode = SIMPLE_THINGY_OPCODE_BUTTON_STATUS;
+  msg.opcode.company_id = ACCESS_COMPANY_ID_NORDIC;
+  msg.p_buffer = (const uint8_t *) & button_data;
+  msg.length = sizeof(button_reading_t);
+  return access_model_publish(p_server->model_handle, &msg);
+}

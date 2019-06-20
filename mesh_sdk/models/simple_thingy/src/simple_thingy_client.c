@@ -243,6 +243,19 @@ static void handle_batt_status_cb(access_model_handle_t handle, const access_mes
   p_client->batt_status_cb(p_client, p_sensor_reading->batt_info, p_message->meta_data.src.value);
 }
 
+static void handle_button_status_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
+{
+  simple_thingy_client_t * p_client = p_args;
+  NRF_MESH_ASSERT(p_client->button_status_cb != NULL);
+  if (!is_valid_source(p_client, p_message))
+  {
+    return;
+  }
+
+  simple_thingy_msg_button_reading_t * p_sensor_reading = (simple_thingy_msg_button_reading_t *) p_message->p_data;
+  p_client->button_status_cb(p_client, p_sensor_reading->button_info, p_message->meta_data.src.value);
+}
+
 static void handle_led_status_cb(access_model_handle_t handle, const access_message_rx_t * p_message, void * p_args)
 {
     simple_thingy_client_t * p_client = p_args;
@@ -263,6 +276,7 @@ static const access_opcode_handler_t m_opcode_handlers[] =
     {{SIMPLE_THINGY_OPCODE_LED_STATUS, ACCESS_COMPANY_ID_NORDIC}, handle_led_status_cb},
     {{SIMPLE_THINGY_OPCODE_MOTION_STATUS, ACCESS_COMPANY_ID_NORDIC}, handle_motion_status_cb},
     {{SIMPLE_THINGY_OPCODE_BATTERY_STATUS, ACCESS_COMPANY_ID_NORDIC}, handle_batt_status_cb},
+    {{SIMPLE_THINGY_OPCODE_BUTTON_STATUS, ACCESS_COMPANY_ID_NORDIC}, handle_button_status_cb},
 };
 
 /*****************************************************************************

@@ -163,6 +163,14 @@ static void batt_meas_handler(m_batt_meas_event_t *evt) {
   simple_thingy_batt_report(&m_server, reading);
 }
 
+static void button_evt_handler(uint8_t pin_no, uint8_t button_action)
+{
+    //NRF_LOG_INFO("Button action %d\r\n", button_action);
+    button_reading_t reading;
+    reading.status = button_action;
+    simple_thingy_button_report(&m_server, reading);
+}
+
 void thingy_led_set(simple_thingy_server_t * server, ble_uis_led_t led_config)
 {
     led_set(&led_config, NULL);
@@ -450,7 +458,6 @@ void sensor_init()
     ERROR_CHECK(drv_pressure_init(&pressure_params));
     ERROR_CHECK(drv_pressure_enable());
 
-
     /*
     drv_motion_twi_init_t motion_params = {
         .p_twi_instance = &m_twi_sensors,
@@ -463,6 +470,7 @@ void sensor_init()
     ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_RAW_ACCEL));
     */
     
+    // Enable battery sensor
     batt_meas_param_t bconfig = BATT_MEAS_PARAM;
     batt_meas_init_t binit = {
           .evt_handler = batt_meas_handler,
@@ -471,7 +479,22 @@ void sensor_init()
     ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
     ERROR_CHECK(m_batt_meas_enable(60000));
 
-    // register sensors
+    // Enable button sensor
+    if (!nrf_drv_gpiote_is_init())
+    {
+        ERROR_CHECK(nrf_drv_gpiote_init());
+    }
+    static const app_button_cfg_t button_cfg =
+    {
+        .pin_no         = BUTTON,
+        .active_state   = APP_BUTTON_ACTIVE_LOW,
+        .pull_cfg       = NRF_GPIO_PIN_PULLUP,
+        .button_handler = button_evt_handler
+    };
+    ERROR_CHECK(app_button_init(&button_cfg, 1, APP_TIMER_TICKS(50)));
+    ERROR_CHECK(app_button_enable());
+
+    // register environment sensors
     app_timer_create(&m_sensor_timer_id, APP_TIMER_MODE_REPEATED, sensor_timer_handler);
     // register motion 
     app_timer_create(&m_motion_timer_id, APP_TIMER_MODE_REPEATED, motion_timer_handler);

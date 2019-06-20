@@ -56,6 +56,7 @@ typedef enum{
     NUS_RSP_MOTION_SET = 0x08,
     NUS_RSP_MOTION_READING = 0x09,
     NUS_RSP_BATTERY_READING = 0x10,
+    NUS_RSP_BUTTON_READING = 0x11,
     NUS_RSP_NONE_ID = 0xffff,
 }nus_rsp_t;
 
