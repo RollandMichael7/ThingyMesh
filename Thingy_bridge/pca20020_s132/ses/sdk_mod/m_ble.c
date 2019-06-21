@@ -55,6 +55,7 @@
 #include "nrf_delay.h"
 #include "support_func.h"
 #include "ble_nus.h"
+#include "main.h"
 
 #define  NRF_LOG_MODULE_NAME "m_ble         "
 #include "nrf_log.h"
@@ -281,13 +282,14 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
             evt.evt_type = thingy_ble_evt_connected;
+            activate_sensors();
             m_evt_handler(&evt);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("on_ble_evt: BLE_GAP_EVT_DISCONNECTED. Reason: 0x%x \r\n", p_ble_evt->evt.gap_evt.params.disconnected.reason);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-
+            deactivate_sensors();
             break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:

@@ -93,6 +93,8 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 
+#include "main.h"
+
 #include <math.h>
 
 #define DEAD_BEEF   0xDEADBEEF          /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
@@ -125,10 +127,14 @@ static uint16_t m_configured_devices;
 static sensor_config_t m_sensor_config[CLIENT_COUNT];
 static sensor_config_t m_motion_config[CLIENT_COUNT];
 
+static int m_last_battery_reading;
+
 APP_TIMER_DEF(m_scan_dev_timer);
 
 
 /* Forward declarations */
+static void batt_meas_handler(m_batt_meas_event_t *evt);
+
 static void client_status_cb(const simple_thingy_client_t * p_self, ble_uis_led_t led_status, uint16_t src);
 static void sensor_status_cb(const simple_thingy_client_t * p_self, sensor_reading_t sensor_status, uint16_t src);
 static void motion_status_cb(const simple_thingy_client_t * p_self, motion_reading_t motion_status, uint16_t src);
@@ -146,6 +152,33 @@ static void health_event_cb(const health_client_t * p_client, const health_clien
  *
  * @returns Number of provisioned devices.
  */
+
+
+// Called on connection
+void activate_sensors(void) 
+{
+    NRF_LOG_INFO("Activating sensors...\r\n");
+    batt_meas_param_t bconfig = BATT_MEAS_PARAM;
+    batt_meas_init_t binit = {
+          .evt_handler = batt_meas_handler,
+          .batt_meas_param = bconfig
+    };
+    ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+    ERROR_CHECK(m_batt_meas_enable(BATTERY_READ_DELAY * 1000));  
+    if (m_last_battery_reading != 0) {
+        uint8_t ret_packet[2];
+        ret_packet[0] = M_BATT_MEAS_EVENT_DATA;
+        ret_packet[1] = m_last_battery_reading;
+        nus_response_send(NUS_RSP_BATTERY_READING, BRIDGE_INDEX, ret_packet, sizeof(ret_packet));
+    }
+}
+
+// Called on disconnect
+void deactivate_sensors(void)
+{
+    NRF_LOG_INFO("Deactivating sensors...\r\n");
+    ERROR_CHECK(m_batt_meas_disable());
+}
 
 static uint32_t server_index_get(const simple_thingy_client_t * p_client)
 {
@@ -218,20 +251,17 @@ static void batt_status_cb(const simple_thingy_client_t * p_self, batt_reading_t
 
 // callback function for local battery reading
 static void batt_meas_handler(m_batt_meas_event_t *evt) {
-  batt_reading_t reading;
-  reading.type = evt->type;
+  uint8_t ret_packet[2];
+  ret_packet[0] = evt->type;
   if (evt->type == M_BATT_MEAS_EVENT_DATA) {
     //NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
-    reading.data = evt->level_percent;
+    ret_packet[1] = evt->level_percent;
+    m_last_battery_reading = evt->level_percent;
   }
   else if (evt->type == M_BATT_MEAS_EVENT_LOW) {
     NRF_LOG_INFO("Warning: Battery level low!\r\n");
-    reading.data = 0;
+    ret_packet[1] = 0;
   }
-  
-  uint8_t ret_packet[2];
-  ret_packet[0] = reading.type;
-  ret_packet[1] = reading.data;
   nus_response_send(NUS_RSP_BATTERY_READING, BRIDGE_INDEX, ret_packet, sizeof(ret_packet));
 }
 
@@ -776,18 +806,6 @@ static ret_code_t button_init(void)
     return app_button_enable();
 }
 
-static void battery_init(void) 
-{
-    batt_meas_param_t bconfig = BATT_MEAS_PARAM;
-    batt_meas_init_t binit = {
-          .evt_handler = batt_meas_handler,
-          .batt_meas_param = bconfig
-    };
-    ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
-    ERROR_CHECK(m_batt_meas_enable(60000));    
-}
-
-
 static void board_init(void)
 {
     uint32_t            err_code;
@@ -860,7 +878,6 @@ int main(void)
     board_init();
     thingy_init();
     button_init();
-    battery_init();
     mesh_core_setup();
     access_setup();
 
