@@ -128,6 +128,7 @@ static sensor_config_t m_sensor_config[CLIENT_COUNT];
 static sensor_config_t m_motion_config[CLIENT_COUNT];
 
 static int m_last_battery_reading;
+static int m_battery_activated;
 
 APP_TIMER_DEF(m_scan_dev_timer);
 
@@ -158,12 +159,15 @@ static void health_event_cb(const health_client_t * p_client, const health_clien
 void activate_sensors(void) 
 {
     NRF_LOG_INFO("Activating sensors...\r\n");
-    batt_meas_param_t bconfig = BATT_MEAS_PARAM;
-    batt_meas_init_t binit = {
-          .evt_handler = batt_meas_handler,
-          .batt_meas_param = bconfig
-    };
-    ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+    if (m_battery_activated == 0) {
+        batt_meas_param_t bconfig = BATT_MEAS_PARAM;
+        batt_meas_init_t binit = {
+              .evt_handler = batt_meas_handler,
+              .batt_meas_param = bconfig
+        };
+        ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+        m_battery_activated = 1;
+    }
     ERROR_CHECK(m_batt_meas_enable(BATTERY_READ_DELAY * 1000));  
     if (m_last_battery_reading != 0) {
         uint8_t ret_packet[2];
