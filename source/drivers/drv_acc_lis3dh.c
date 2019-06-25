@@ -205,7 +205,7 @@ static ret_code_t lis3dh_write_regs(uint8_t first_reg, uint8_t const * const p_c
                                s_tx_buf,
                                num_regs + 1,
                                false );
-    NRF_LOG_INFO("SPI transfered\r\n");
+    //NRF_LOG_INFO("SPI transfered\r\n");
     RETURN_IF_ERROR(err_code);
 
     return DRV_ACC_STATUS_CODE_SUCCESS;
@@ -296,25 +296,25 @@ ret_code_t drv_acc_init(drv_acc_cfg_t const * const p_cfg)
     err_code = twi_open();
     RETURN_IF_ERROR(err_code);
     
-    NRF_LOG_INFO("reboot mem\r\n");
+    //NRF_LOG_INFO("reboot mem\r\n");
     // Reboot memory contents. 
     err_code = lis3dh_reboot_mem();
     RETURN_IF_ERROR(err_code);
     
-    NRF_LOG_INFO("power-down\r\n");
+    //NRF_LOG_INFO("power-down\r\n");
     // Explicitly set the LIS3DH in power-down mode.
     uint8_t reg_val = CTRL_REG1_LPEN;
     err_code = lis3dh_write_regs(CTRL_REG1, &reg_val, 1);
     RETURN_IF_ERROR(err_code);
     
-    NRF_LOG_INFO("verify id\r\n");
+    //NRF_LOG_INFO("verify id\r\n");
     // Check correct ID.
     if (!lis3dh_verify_id())
     {
         return DRV_ACC_STATUS_WRONG_DEVICE;
     }
 
-    NRF_LOG_INFO("clear intr\r\n");
+    //NRF_LOG_INFO("clear intr\r\n");
     // Clear any interrupts.
     (void)lis3dh_int1_clear();
     

@@ -266,7 +266,7 @@ float drv_pressure_get(void)
     err_code = drv_lps22hb_close();
     APP_ERROR_CHECK(err_code);
 
-    NRF_LOG_INFO("raw pressure: %d\n", pressure);
+    //NRF_LOG_INFO("raw pressure: %d\n", pressure);
 
     // p(hPa) = pressure(LSB) / 4096(LSB/hPa).
     return (((float)pressure) / 4096.0f);
