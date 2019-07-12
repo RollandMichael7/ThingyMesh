@@ -1,9 +1,7 @@
 <!DOCTYPE CrossStudio_Session_File>
 <session>
  <Bookmarks/>
- <Breakpoints groups="Breakpoints" active_group="Breakpoints">
-  <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
- </Breakpoints>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
  <ExecutionProfileWindow/>
  <FrameBufferWindow>
   <FrameBufferWindow bufferHeight="-1" addressSpace="" addressText="" bufferWidth="-1"/>
@@ -23,7 +21,7 @@
  <Project>
   <ProjectSessionItem path="Thingy_node_s132_pca20020"/>
   <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node"/>
-  <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node;Mesh_simple_thingy"/>
+  <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node;nRF_BLE"/>
   <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node;nRF_Drivers"/>
   <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node;Thingy"/>
   <ProjectSessionItem path="Thingy_node_s132_pca20020;Thingy_node;Thingy drivers"/>
@@ -63,11 +61,17 @@
   <SessionOpenFile windowGroup="DockEditRight" x="0" y="72" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../include/modules/m_batt_meas.h" selected="0" top="130" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditRight" x="0" y="98" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_server.h" selected="0" top="74" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditRight" x="0" y="104" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/include/simple_thingy_common.h" selected="0" top="83" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditRight" x="0" y="157" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../include/drivers/drv_motion.h" selected="0" top="143" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="37" y="494" useTextEdit="1" useBinaryEdit="0" left="0" path="main.c" selected="1" top="454" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="2" y="197" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../include/drivers/drv_motion.h" selected="0" top="72" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="56" y="128" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/libraries/log/nrf_log.h" selected="0" top="111" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="11" y="89" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../include/modules/m_motion.h" selected="0" top="57" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="55" y="59" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../source/modules/m_motion.c" selected="0" top="225" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="51" y="480" useTextEdit="1" useBinaryEdit="0" left="0" path="main.c" selected="1" top="494" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../source/modules/m_batt_meas.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="106" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/ble/ble_services/ble_bas/ble_bas.h" selected="0" top="90" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="222" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mesh_sdk/models/simple_thingy/src/simple_thingy_server.c" selected="0" top="184" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="268" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../source/drivers/drv_pressure.c" selected="0" top="245" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="153" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../sdk_components/libraries/log/src/nrf_log_internal.h" selected="0" top="130" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="31" y="5598" useTextEdit="1" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="5570" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="155" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../include/ble_services/ble_tms.h" selected="0" top="124" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="Thingy_node" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="debug_v1_0_0" sessionSettings="" debugSearchFileMap="../mpl/accel_auto_cal.c&#xa;&#xa;../mpl/compass_vec_cal.c&#xa;&#xa;../mpl/fast_no_motion.c&#xa;&#xa;../mpl/fusion_9axis.c&#xa;&#xa;../mpl/gyro_tc.c&#xa;&#xa;../mpl/heading_from_gyro.c&#xa;&#xa;../mpl/mag_disturb.c&#xa;&#xa;../mpl/quaternion_supervisor.c&#xa;&#xa;C:\eclipseWS\libmplmpu\mllite/ml_math_func.h&#xa;" fileDialogInitialDirectory="/home/mrolland/Documents/ThingyMesh/external/sdk13/components/ble/ble_services/ble_bas" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <ARMCrossStudioWindow activeProject="Thingy_node" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="debug_v1_0_0" sessionSettings="" debugSearchFileMap="../mpl/accel_auto_cal.c&#xa;&#xa;../mpl/compass_vec_cal.c&#xa;&#xa;../mpl/fast_no_motion.c&#xa;&#xa;../mpl/fusion_9axis.c&#xa;&#xa;../mpl/gyro_tc.c&#xa;&#xa;../mpl/heading_from_gyro.c&#xa;&#xa;../mpl/mag_disturb.c&#xa;&#xa;../mpl/quaternion_supervisor.c&#xa;&#xa;C:\eclipseWS\libmplmpu\mllite/ml_math_func.h&#xa;" fileDialogInitialDirectory="/home/mrolland/Documents/ThingyMesh/source/modules" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>

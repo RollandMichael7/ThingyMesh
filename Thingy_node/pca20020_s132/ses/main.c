@@ -104,6 +104,8 @@ static const nrf_drv_twi_t     m_twi_sensors = NRF_DRV_TWI_INSTANCE(TWI_SENSOR_I
 APP_TIMER_DEF(m_sensor_timer_id);       // Sensor feedback timer
 APP_TIMER_DEF(m_motion_timer_id);       // Motion feedback timer
 
+static int m_battery_activated;
+
 void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
     #if NRF_LOG_ENABLED
@@ -135,7 +137,7 @@ static void motion_timer_handler() {
 
 static void sensor_timer_handler()
 {
-    NRF_LOG_INFO("sensor log start\r\n");
+    //NRF_LOG_INFO("sensor log start\r\n");
     drv_humidity_sample();
     drv_pressure_sample();
     float humidity = drv_humidity_get();
@@ -153,7 +155,7 @@ static void batt_meas_handler(m_batt_meas_event_t *evt) {
   batt_reading_t reading;
   reading.type = evt->type;
   if (evt->type == M_BATT_MEAS_EVENT_DATA) {
-    NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
+    //NRF_LOG_INFO("Current battery: %d%%\r\n", evt->level_percent);
     reading.data = evt->level_percent;
   }
   else if (evt->type == M_BATT_MEAS_EVENT_LOW) {
@@ -307,6 +309,25 @@ static ble_uis_led_t led_set_cb(const simple_thingy_server_t * server, ble_uis_l
     
 }
 
+static void battery_sensor_start() {
+    NRF_LOG_INFO("Starting battery sensor...\r\n");
+    if (m_battery_activated == 0) {
+        batt_meas_param_t bconfig = BATT_MEAS_PARAM;
+        batt_meas_init_t binit = {
+              .evt_handler = batt_meas_handler,
+              .batt_meas_param = bconfig
+        };
+        ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
+        m_battery_activated = 1;
+    }
+    ERROR_CHECK(m_batt_meas_enable(60000));
+}
+
+static void battery_sensor_stop() {
+    NRF_LOG_INFO("Stopping battery sensor...\r\n");
+    ERROR_CHECK(m_batt_meas_disable());
+}
+
 static void sensor_set_cb(const simple_thingy_server_t * server, sensor_config_t sensor_cfg)
 {
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "set sensor status, cfg = %x\r\n", sensor_cfg.report_timer);
@@ -315,18 +336,22 @@ static void sensor_set_cb(const simple_thingy_server_t * server, sensor_config_t
     {
         case SENSOR_REPORT_NONE:
             app_timer_stop(m_sensor_timer_id);
+            battery_sensor_stop();
             break;
         case SENSOR_REPORT_EVERY_1S:
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(1000), NULL);
+            battery_sensor_start();
             break;
         case SENSOR_REPORT_EVERY_5S:
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(5000), NULL);
+            battery_sensor_start();
             break;
         case SENSOR_REPORT_EVERY_10S:
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(10000), NULL);
+            battery_sensor_start();
             break;
         case SENSOR_REPORT_MANUAL:
             app_timer_stop(m_sensor_timer_id);
@@ -418,9 +443,25 @@ void drv_pressure_evt_handler(drv_pressure_evt_t evt)
     }
 }
 
-void drv_motion_evt_handler(drv_motion_evt_t *p_evt, void *p_data, uint32_t size)
+void drv_motion_evt_handler(drv_motion_evt_t *evt, uint8_t *data, uint32_t size)
 {
-  NRF_LOG_INFO("motion event\r\n");
+    for (int i=0; i<size; i++)
+        printf("%d\t", data[i]);
+    printf("\n");
+    //NRF_LOG_INFO("len %d\r\n", size);
+    if (*evt == DRV_MOTION_EVT_HEADING) {
+        int32_t raw = (data[0]) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+        float x = ((float)(raw) / (float)(1 << 16));
+        NRF_LOG_INFO("heading: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(x));
+    }
+    if (*evt == DRV_MOTION_EVT_ORIENTATION) {
+        NRF_LOG_INFO("orientation: %d\r\n", data[0]);
+    }
+    if (*evt == DRV_MOTION_EVT_EULER) {
+        int32_t roll_raw = (data[0]) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+        float roll = ((float)(roll_raw) / (float)(1 << 16));
+        NRF_LOG_INFO("roll: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(roll));
+    }
 }
 
 void sensor_init()
@@ -432,8 +473,6 @@ void sensor_init()
         .sda = TWI_SDA,
         .frequency = NRF_TWI_FREQ_400K,
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,
-        .clear_bus_init = 0,
-        .hold_bus_uninit = 0
     };
 
     drv_humidity_init_t init_params = 
@@ -459,17 +498,38 @@ void sensor_init()
     ERROR_CHECK(drv_pressure_enable());
 
     /*
-    drv_motion_twi_init_t motion_params = {
+    static const nrf_drv_twi_config_t twi_config_lisd2dh12 =
+    {
+        .scl = TWI_SCL_EXT,
+        .sda = TWI_SDA_EXT,
+        .frequency = NRF_TWI_FREQ_400K,
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
+    };
+
+    drv_motion_twi_init_t mpu9250_params = {
         .p_twi_instance = &m_twi_sensors,
         .p_twi_cfg = &twi_config
     };
-
+    drv_motion_twi_init_t lis2dh12_params = {
+        .p_twi_instance = &m_twi_sensors,
+        .p_twi_cfg = &twi_config_lisd2dh12
+    };
 
     NRF_LOG_INFO("Starting motion sensor...\r\n");
-    ERROR_CHECK(drv_motion_init(drv_motion_evt_handler, &motion_params, &motion_params));
-    ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_RAW_ACCEL));
+    ERROR_CHECK(drv_motion_init(drv_motion_evt_handler, &mpu9250_params, &lis2dh12_params));
+    ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_RAW_GYRO));
     */
-    
+
+    /*
+    m_ble_service_handle_t motion_handle;
+    m_motion_init_t motion_params;
+    motion_params.p_twi_instance = &m_twi_sensors;
+    ERROR_CHECK(m_motion_init(&motion_handle, &motion_params));
+    //ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_HEADING));
+    */
+
+    /* battery sensor now activated with environmental sensors
+
     // Enable battery sensor
     batt_meas_param_t bconfig = BATT_MEAS_PARAM;
     batt_meas_init_t binit = {
@@ -478,6 +538,7 @@ void sensor_init()
     };
     ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
     ERROR_CHECK(m_batt_meas_enable(60000));
+    */
 
     // Enable button sensor
     if (!nrf_drv_gpiote_is_init())
@@ -497,7 +558,7 @@ void sensor_init()
     // register environment sensors
     app_timer_create(&m_sensor_timer_id, APP_TIMER_MODE_REPEATED, sensor_timer_handler);
     // register motion 
-    app_timer_create(&m_motion_timer_id, APP_TIMER_MODE_REPEATED, motion_timer_handler);
+    //app_timer_create(&m_motion_timer_id, APP_TIMER_MODE_REPEATED, motion_timer_handler);
 
     NRF_LOG_INFO("Sensors initialized.\r\n");
 
