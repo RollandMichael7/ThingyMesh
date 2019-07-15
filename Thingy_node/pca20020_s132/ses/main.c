@@ -311,15 +311,6 @@ static ble_uis_led_t led_set_cb(const simple_thingy_server_t * server, ble_uis_l
 
 static void battery_sensor_start() {
     NRF_LOG_INFO("Starting battery sensor...\r\n");
-    if (m_battery_activated == 0) {
-        batt_meas_param_t bconfig = BATT_MEAS_PARAM;
-        batt_meas_init_t binit = {
-              .evt_handler = batt_meas_handler,
-              .batt_meas_param = bconfig
-        };
-        ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
-        m_battery_activated = 1;
-    }
     ERROR_CHECK(m_batt_meas_enable(60000));
 }
 
@@ -339,19 +330,19 @@ static void sensor_set_cb(const simple_thingy_server_t * server, sensor_config_t
             battery_sensor_stop();
             break;
         case SENSOR_REPORT_EVERY_1S:
+            battery_sensor_start();
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(1000), NULL);
-            battery_sensor_start();
             break;
         case SENSOR_REPORT_EVERY_5S:
+            battery_sensor_start();
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(5000), NULL);
-            battery_sensor_start();
             break;
         case SENSOR_REPORT_EVERY_10S:
+            battery_sensor_start();
             app_timer_stop(m_sensor_timer_id);
             app_timer_start(m_sensor_timer_id, APP_TIMER_TICKS(10000), NULL);
-            battery_sensor_start();
             break;
         case SENSOR_REPORT_MANUAL:
             app_timer_stop(m_sensor_timer_id);
@@ -528,8 +519,6 @@ void sensor_init()
     //ERROR_CHECK(drv_motion_enable(DRV_MOTION_FEATURE_MASK_HEADING));
     */
 
-    /* battery sensor now activated with environmental sensors
-
     // Enable battery sensor
     batt_meas_param_t bconfig = BATT_MEAS_PARAM;
     batt_meas_init_t binit = {
@@ -537,8 +526,7 @@ void sensor_init()
           .batt_meas_param = bconfig
     };
     ERROR_CHECK(m_batt_meas_init(&m_batt_handle, &binit));
-    ERROR_CHECK(m_batt_meas_enable(60000));
-    */
+
 
     // Enable button sensor
     if (!nrf_drv_gpiote_is_init())

@@ -491,6 +491,7 @@ uint32_t m_batt_meas_enable(uint32_t meas_interval_ms)
     // Call for a battery voltage sample immediately after enabling battery measurements.
     app_timer_periodic_handler(NULL);
 
+    app_timer_stop(batt_meas_app_timer_id);
     err_code = app_timer_create(&batt_meas_app_timer_id,
                                 APP_TIMER_MODE_REPEATED,
                                 app_timer_periodic_handler);
